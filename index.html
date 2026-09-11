@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title id="pageTitle">AutoImBot Store</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #070913; color: #f8fafc; min-height: 100vh; position: relative; overflow-x: hidden; }
+
+    #particles-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+    .container { max-width: 650px; margin: 0 auto; padding: 20px 15px; position: relative; z-index: 1; }
+
+    /* Header */
+    .header { text-align: center; padding: 20px 0 15px; }
+    .header-logo { width: 70px; height: 70px; border-radius: 16px; object-fit: cover; margin-bottom: 10px; border: 2px solid #f472b6; box-shadow: 0 0 15px rgba(244, 114, 182, 0.4); }
+    .header h1 { font-size: 26px; color: #f472b6; font-weight: 800; }
+    .header p { color: #cbd5e1; font-size: 14px; margin-top: 4px; }
+
+    /* Telegram Banner */
+    .tg-banner { background: linear-gradient(135deg, #ec4899, #be185d); border-radius: 12px; padding: 12px 18px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(236, 72, 153, 0.3); }
+    .tg-info { display: flex; align-items: center; gap: 10px; }
+    .tg-info i { font-size: 28px; color: #fff; }
+    .tg-info div h3 { font-size: 14px; font-weight: bold; color: #fff; }
+    .tg-info div p { font-size: 11px; color: #fce7f3; }
+    .tg-btn { background: #fff; color: #be185d; padding: 7px 15px; border-radius: 20px; font-weight: bold; text-decoration: none; font-size: 12px; }
+
+    /* News Notification Card */
+    .news-card { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(8px); border-left: 4px solid #f472b6; border-radius: 8px; padding: 12px 15px; margin-bottom: 12px; border-top: 1px solid #334155; border-right: 1px solid #334155; border-bottom: 1px solid #334155; }
+    .news-header { display: flex; justify-content: space-between; font-size: 11px; color: #f472b6; margin-bottom: 5px; font-weight: bold; }
+    .news-title { font-size: 14px; font-weight: bold; margin-bottom: 4px; }
+    .news-desc { font-size: 12px; color: #94a3b8; line-height: 1.4; }
+
+    /* App Cards with Classic Look & YouTube Link */
+    .app-card { background: rgba(30, 41, 59, 0.8); backdrop-filter: blur(6px); border-radius: 14px; padding: 18px; margin-bottom: 18px; border: 1px solid #334155; display: flex; flex-direction: column; gap: 12px; transition: 0.2s; }
+    .app-card:hover { border-color: #f472b6; transform: translateY(-2px); box-shadow: 0 4px 20px rgba(244, 114, 182, 0.15); }
+    
+    .app-top { display: flex; align-items: center; gap: 14px; }
+    .app-icon { width: 56px; height: 56px; border-radius: 12px; object-fit: cover; background: #0f172a; border: 1px solid #334155; }
+    .app-details { flex: 1; }
+    .app-details h3 { font-size: 17px; font-weight: bold; color: #f8fafc; }
+    .app-badge { display: inline-block; background: #831843; color: #fbcfe8; font-size: 11px; padding: 2px 8px; border-radius: 6px; margin-top: 4px; font-weight: 600; }
+    
+    .app-desc { font-size: 13px; color: #94a3b8; line-height: 1.5; white-space: pre-line; }
+
+    /* Action Buttons: YouTube & Download */
+    .button-group { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+    .yt-btn { display: flex; align-items: center; justify-content: center; gap: 8px; background: #dc2626; color: #fff; text-decoration: none; padding: 9px; border-radius: 8px; font-weight: bold; font-size: 13px; transition: 0.2s; }
+    .yt-btn:hover { background: #b91c1c; }
+    .download-btn { display: flex; align-items: center; justify-content: center; gap: 8px; background: #22c55e; color: #fff; text-decoration: none; padding: 11px; border-radius: 8px; font-weight: bold; font-size: 14px; transition: 0.2s; }
+    .download-btn:hover { background: #16a34a; }
+
+    /* Maintenance Screen */
+    #maintenanceScreen { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #070913; z-index: 999; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; }
+    .maint-icon { font-size: 65px; color: #f472b6; margin-bottom: 20px; animation: pulse 1.8s infinite; }
+    .maint-title { font-size: 24px; font-weight: bold; color: #fff; margin-bottom: 10px; }
+    .maint-desc { font-size: 14px; color: #94a3b8; max-width: 400px; margin-bottom: 25px; line-height: 1.5; }
+    .maint-tg-btn { display: inline-flex; align-items: center; gap: 10px; background: linear-gradient(135deg, #ec4899, #be185d); color: #fff; padding: 12px 26px; border-radius: 30px; text-decoration: none; font-weight: bold; font-size: 15px; box-shadow: 0 4px 20px rgba(236, 72, 153, 0.4); }
+
+    @keyframes pulse {
+      0% { transform: scale(1); opacity: 0.8; }
+      50% { transform: scale(1.1); opacity: 1; }
+      100% { transform: scale(1); opacity: 0.8; }
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="particles-canvas"></canvas>
+
+<!-- মেইনটেনেন্স স্ক্রিন -->
+<div id="maintenanceScreen">
+  <i class="fas fa-tools maint-icon"></i>
+  <h2 class="maint-title">ওয়েবসাইট আপডেট চলছে!</h2>
+  <p class="maint-desc" id="maintMsgText">নতুন আপডেট ও সার্ভার মেইনটেনেন্সের কাজ চলছে। শীঘ্রই ফিরে আসছি।</p>
+  <a href="#" id="maintTgBtn" target="_blank" class="maint-tg-btn">
+    <i class="fab fa-telegram"></i> টেলিগ্রামে আপডেট জানুন
+  </a>
+</div>
+
+<!-- ইউজার মেইন কন্টেন্ট -->
+<div class="container" id="mainContent">
+  <div class="header">
+    <img id="siteLogo" src="" class="header-logo" style="display: none;" alt="Logo">
+    <h1 id="siteTitle">AutoImBot Store</h1>
+    <p id="siteSubtitle">সকল অ্যাপ্লিকেশন এবং লেটেস্ট আপডেট এখান থেকে ডাউনলোড করুন</p>
+  </div>
+
+  <div class="tg-banner" id="tgSection" style="display: none;">
+    <div class="tg-info">
+      <i class="fab fa-telegram"></i>
+      <div>
+        <h3>Telegram চ্যানেল</h3>
+        <p>সবার আগে নতুন আপডেট পেতে যুক্ত হন</p>
+      </div>
+    </div>
+    <a href="#" target="_blank" id="tgUrl" class="tg-btn">Join Now</a>
+  </div>
+
+  <!-- নোটিফিকেশন এরিয়া -->
+  <div id="newsSection"></div>
+
+  <!-- অ্যাপ তালিকা -->
+  <div id="appList" style="margin-top: 15px;"></div>
+</div>
+
+<!-- পিঙ্ক পার্টিকেল অ্যানিমেশন -->
+<script>
+  const canvas = document.getElementById('particles-canvas');
+  const ctx = canvas.getContext('2d');
+  let particlesArray = [];
+
+  function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  window.addEventListener('resize', resizeCanvas);
+  resizeCanvas();
+
+  class Particle {
+    constructor() {
+      this.x = Math.random() * canvas.width;
+      this.y = Math.random() * canvas.height;
+      this.size = Math.random() * 3 + 1;
+      this.speedX = (Math.random() - 0.5) * 1.2;
+      this.speedY = (Math.random() - 0.5) * 1.2;
+      this.opacity = Math.random() * 0.6 + 0.2;
+    }
+    update() {
+      this.x += this.speedX;
+      this.y += this.speedY;
+      if (this.x < 0 || this.x > canvas.width) this.speedX = -this.speedX;
+      if (this.y < 0 || this.y > canvas.height) this.speedY = -this.speedY;
+    }
+    draw() {
+      ctx.fillStyle = `rgba(244, 114, 182, ${this.opacity})`;
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  function initParticles() {
+    particlesArray = [];
+    const count = Math.floor((canvas.width * canvas.height) / 12000);
+    for (let i = 0; i < count; i++) particlesArray.push(new Particle());
+  }
+
+  function animateParticles() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    for (let p of particlesArray) {
+      p.update();
+      p.draw();
+    }
+    requestAnimationFrame(animateParticles);
+  }
+
+  initParticles();
+  animateParticles();
+</script>
+
+<!-- স্টোর লোডার -->
+<script>
+  async function loadStore() {
+    // ১. সাইট সেটিংস এবং মেইনটেনেন্স
+    try {
+      const cfgRes = await fetch("config.json?t=" + Date.now());
+      if (cfgRes.ok) {
+        const config = await cfgRes.json();
+        
+        if (config.maintenance) {
+          document.getElementById("maintenanceScreen").style.display = "flex";
+          document.getElementById("mainContent").style.display = "none";
+          if (config.maintenanceMsg) document.getElementById("maintMsgText").innerText = config.maintenanceMsg;
+          if (config.telegram) document.getElementById("maintTgBtn").href = config.telegram;
+          return;
+        }
+
+        if (config.siteTitle) {
+          document.getElementById("siteTitle").innerText = config.siteTitle;
+          document.getElementById("pageTitle").innerText = config.siteTitle;
+        }
+        if (config.siteSubtitle) document.getElementById("siteSubtitle").innerText = config.siteSubtitle;
+        if (config.siteLogo) {
+          const logo = document.getElementById("siteLogo");
+          logo.src = config.siteLogo;
+          logo.style.display = "inline-block";
+        }
+        if (config.telegram) {
+          document.getElementById("tgUrl").href = config.telegram;
+          document.getElementById("tgSection").style.display = "flex";
+        }
+      }
+    } catch (e) {}
+
+    // ২. নিউজ নোটিফিকেশন
+    try {
+      const newsRes = await fetch("news.json?t=" + Date.now());
+      if (newsRes.ok) {
+        const news = await newsRes.json();
+        const newsEl = document.getElementById("newsSection");
+        if (Array.isArray(news) && news.length > 0) {
+          newsEl.innerHTML = news.map(n => `
+            <div class="news-card">
+              <div class="news-header">
+                <span><i class="fas fa-bell"></i> নোটিশ</span>
+                <span>${n.date}</span>
+              </div>
+              <div class="news-title">${n.title}</div>
+              <div class="news-desc">${n.content}</div>
+            </div>
+          `).join("");
+        }
+      }
+    } catch (e) {}
+
+    // ৩. অ্যাপ তালিকা (ইউটিউব বাটন সহ)
+    try {
+      const appsRes = await fetch("apps.json?t=" + Date.now());
+      const listEl = document.getElementById("appList");
+      if (appsRes.ok) {
+        const apps = await appsRes.json();
+        if (Array.isArray(apps) && apps.length > 0) {
+          listEl.innerHTML = apps.map(app => `
+            <div class="app-card">
+              <div class="app-top">
+                <img src="${app.icon || 'https://img.icons8.com/color/96/android-os.png'}" class="app-icon" alt="${app.name}" onerror="this.src='https://img.icons8.com/color/96/android-os.png'">
+                <div class="app-details">
+                  <h3>${app.name}</h3>
+                  <span class="app-badge">${app.version || 'v1.0'}</span>
+                </div>
+              </div>
+              ${app.desc ? `<div class="app-desc">${app.desc}</div>` : ''}
+              
+              <div class="button-group">
+                ${app.youtube ? `
+                  <a href="${app.youtube}" target="_blank" class="yt-btn">
+                    <i class="fab fa-youtube"></i> ভিডিও দেখুন / টিউটোরিয়াল
+                  </a>
+                ` : ''}
+                <a href="${app.download}" target="_blank" class="download-btn">
+                  <i class="fas fa-download"></i> ডাউনলোড করুন
+                </a>
+              </div>
+            </div>
+          `).join("");
+        } else {
+          listEl.innerHTML = "<p style='text-align:center; color:#94a3b8;'>বর্তমানে কোনো অ্যাপ্লিকেশন নেই।</p>";
+        }
+      }
+    } catch (e) {}
+  }
+
+  loadStore();
+</script>
+</body>
+</html>
